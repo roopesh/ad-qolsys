@@ -15,7 +15,7 @@ import sys
 # qolsys_host: (Required) IP address or hostname for the qolsys panel
 # qolsys_port: (Optional) Port on the qolsys panel to connect to; will default to 12345
 # qolsys_token: (Required) Token from the qolsys panel
-# request_topic: The topic to listen to for commands to the qolsys panel
+# request_topic: (Optional) The topic to listen to for commands to the qolsys panel; defaults to qolsys/requests
 # qolsys_timeout: (Optional) The timeout (in seconds) to wait for any activity to/from the qolsys panel before disconnecting; defaults to 86400
 # qolsys_info_topic: (Optional) The topic to publish qolsys INFO events to; defaults to qolsys/info
 # UNUSED? # qolsys_zone_update_topic: (Optional) The topic to publish ZONE_UPDATE events to; defaults to qolsys/zone_event
@@ -42,6 +42,7 @@ class QolsysClient(mqtt.Mqtt):
         self.__c_qolsys_zone_event_topic__ = "qolsys_zone_event_topic"
         self.__c_qolsys_arming_topic = "qolsys_alarming_event_topic"
         self.__c_qolsys_disarming_topic = "qolsys_disarming_event_topic"
+        self.__c_qolsys_alarm_status_topic = "qolsys_alarm_status_topic"
 
         # populate some variables we'll need to use throughout our ap
         # self.mqtt_broker = self.args[self.__c_mqtt_broker__]
@@ -57,6 +58,7 @@ class QolsysClient(mqtt.Mqtt):
         self.qolsys_zone_event_topic = self.args[self.__c_qolsys_zone_event_topic__] if self.__c_qolsys_zone_event_topic__ in self.args else "qolsys/zone_event"
         self.qolsys_arming_event_topic = self.args[self.__c_qolsys_arming_topic] if self.__c_qolsys_arming_topic in self.args else "qolsys/arming"
         self.qolsys_disarming_event_topic = self.args[self.__c_qolsys_disarming_topic] if self.__c_qolsys_disarming_topic in self.args else "qolsys/disarming"
+        self.qolsys_alarm_status_topic = self.args[self.__c_qolsys_alarm_status_topic] if self.__c_qolsys_alarm_status_topic in self.args else "qolsys/alarm/status"
         
         self.log("qolsys_host: %s, qolsys_port: %s, qolsys_token: %s, qolsys_timeout: %s, request_topic: %s", self.qolsys_host, self.qolsys_port, self.qolsys_token, self.qolsys_timeout, self.request_topic, level="DEBUG")
         self.log("Creating qolsys_socket", level="INFO")
@@ -81,6 +83,8 @@ class QolsysClient(mqtt.Mqtt):
         self.log("listener for zone update topic: %s", self.qolsys_zone_update_topic, level="INFO")
         mqtt_sub.listen(mqtt_sub.mqtt_zone_update_event_received, self.qolsys_zone_update_topic)
 
+        self.log("listener for arming topic: %s", self.qolsys_arming_event_topic, level="INFO")
+        mqtt_sub.listen(mqtt_sub.mqtt_arming_event_received, self.qolsys_arming_event_topic)
 
 
         # Populate the zones and partitions with an INFO call
@@ -102,6 +106,7 @@ class QolsysClient(mqtt.Mqtt):
         try:
             for part in self.partitions:
                 self.call_service("mqtt/publish", topic=self.partitions[part].config_topic, namespace=self.mqtt_namespace)
+                self.call_service("mqtt/publish", topic=self.partitions[part].alarm_config_topic, namespace=self.mqtt_namespace)
         except:
             self.log("Error publishing empty partition: %s, %s", part, sys.exc_info(), level="ERROR")
 
@@ -139,9 +144,9 @@ class QolsysClient(mqtt.Mqtt):
         self.call_service("mqtt/publish", namespace=self.mqtt_namespace, topic=topic, payload=data)
 
         # Temporary hack to update partitions based on arming
-        if event_type == "ARMING":
-            info_payload = {"event":"INFO", "token":self.qolsys_token}
-            self.call_service("mqtt/publish", namespace=self.mqtt_namespace, topic=self.request_topic, payload=json.dumps(info_payload))
+        # if event_type == "ARMING":
+        #     info_payload = {"event":"INFO", "token":self.qolsys_token}
+        #     self.call_service("mqtt/publish", namespace=self.mqtt_namespace, topic=self.request_topic, payload=json.dumps(info_payload))
 
     
     def update_zone(self, zoneid, zone):
