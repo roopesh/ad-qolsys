@@ -3,7 +3,7 @@ AppDaemon app for Qolsys IQ Panel 2 _for Home Assistant_.  Only tested using the
 
 Fully self-contained AppDaemon app.  If you have HA MQTT Discovery turned on, you should end up with binary sensors for each `Door_Window` zone on the Qolsys panel. There are more zone types which I don’t own so I have not handled them in anyway.
 
-You’ll also have a binary sensor for each partition (see Known Issues below).
+You’ll also have an `alarm_control_panel` device in HA for each partition in your Qolsys panel.
 
 Arguments in apps.yaml:
 ```
@@ -17,6 +17,7 @@ Arguments in apps.yaml:
 # qolsys_zone_event_topic: (Optional) The topic to publish ZONE_EVENT events to; defaults to qolsys/zone_event
 # qolsys_alarming_event_topic: (Optional) The topic to publish ARMING events to; defaults to qolsys/arming
 # qolsys_disarming_event_topic: (Optional) The topic to publish DISARMING events to; defaults to qolsys/disarming
+# qolsys_alarm_status_topic: (Optional) The topic to publish alarm status for the alarm_control_panel; defaults to qolsys/alarm/status
 ```
 You’ll need you appdaemon's apps.yaml to include an app with this module and class:
 ```
@@ -33,6 +34,7 @@ qolsys_panel:
   qolsys_zone_event_topic: qolsys/panel/zone_event # Optional
   qolsys_alarming_event_topic: qolsys/panel/alarming # Optional
   qolsys_disarming_event_topic: qolsys/panel/disarm # Optional
+  qolsys_alarm_status_topic: qolsys/alarm/status # Optional
 ```
 As far MQTT is concerned, I had to figure out how to enable MQTT inside AppDaemon. In case you’re new to AppDaemon and have the same questions, I had to put this in my appdaemon.yaml:
 ```
@@ -72,8 +74,10 @@ You can send commands to the Qolsys panel on the `request_topic` in the config (
 Known issues:
 
 - When the app reloads, sometimes it doesn’t reconnect to the socket and it just hangs the entire app. The only way I’ve been able to recover is to restart AppDaemon. If anyone has a way to detect and fix this, let me know or issue a pull request.
-- I’m not yet processing arming/disarming events. The requests will work 💯, but the partition doesn’t get updated with the status. I put in another INFO request so the partition sensor will update but it’s a bit hacky for now. If you’re listening to the topics or watching logs, you’ll see a bunch of noise associated with this hack.
-- Partition status being tracked as a `binary_sensor` instead of `alarm_control_panel`.
+
+~- I’m not yet processing arming/disarming events. The requests will work 💯, but the partition doesn’t get updated with the status. I put in another INFO request so the partition sensor will update but it’s a bit hacky for now. If you’re listening to the topics or watching logs, you’ll see a bunch of noise associated with this hack.~
+
+~- Partition status being tracked as a `binary_sensor` instead of `alarm_control_panel`.~
 - MQTT Discovery is being published to `homeassistant/binary_sensor`. I’ll make this a config in the future. This is the default MQTT Discovery topic so I think most people will be fine.
 
 ### I hope this works for everyone! Hit me up with feedback.
