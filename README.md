@@ -3,7 +3,7 @@ AppDaemon app for Qolsys IQ Panel 2 _for Home Assistant_.  Only tested using the
 
 Fully self-contained AppDaemon app.  If you have HA MQTT Discovery turned on, you should end up with binary sensors for each `Door_Window` zone on the Qolsys panel. There are more zone types which I don’t own so I have not handled them in anyway.
 
-You’ll also have an `alarm_control_panel` device in HA for each partition in your Qolsys panel.
+You’ll also have an alarm_control_panel for each partition.  If you use the alarm panel component in HA, you don't have to worry about sending commands to the panel.  It'll all be auto-magiced with MQTT discovery.
 
 Arguments in apps.yaml:
 ```
@@ -17,7 +17,9 @@ Arguments in apps.yaml:
 # qolsys_zone_event_topic: (Optional) The topic to publish ZONE_EVENT events to; defaults to qolsys/zone_event
 # qolsys_alarming_event_topic: (Optional) The topic to publish ARMING events to; defaults to qolsys/arming
 # qolsys_disarming_event_topic: (Optional) The topic to publish DISARMING events to; defaults to qolsys/disarming
-# qolsys_alarm_status_topic: (Optional) The topic to publish alarm status for the alarm_control_panel; defaults to qolsys/alarm/status
+# qolsys_disarm_code: (Required - if you want to disarm the alarm)
+# qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming; defaults to False
+# qolsys_confirm_arm_code: True/False (Optional) Require the code for arming; defaults to False
 ```
 You’ll need you appdaemon's apps.yaml to include an app with this module and class:
 ```
@@ -34,7 +36,9 @@ qolsys_panel:
   qolsys_zone_event_topic: qolsys/panel/zone_event # Optional
   qolsys_alarming_event_topic: qolsys/panel/alarming # Optional
   qolsys_disarming_event_topic: qolsys/panel/disarm # Optional
-  qolsys_alarm_status_topic: qolsys/alarm/status # Optional
+  qolsys_disarm_code: 4567 # Optional - Required if you want to disarm the panel
+  qolsys_confirm_arm_code: False
+  qolsys_confirm_disarm_code: False
 ```
 As far MQTT is concerned, I had to figure out how to enable MQTT inside AppDaemon. In case you’re new to AppDaemon and have the same questions, I had to put this in my appdaemon.yaml:
 ```
@@ -69,7 +73,7 @@ You can send commands to the Qolsys panel on the `request_topic` in the config (
 {"event":"ARM", "arm_type":"away", "partition_id": 0, "token":"blah"}
 
 # Disarm
-{"event":"DISARM", "usercode":"0000", "token":"blah"}
+{"event":"DISARM", "usercode":0000, "token":"blah"}
 ```
 Known issues:
 

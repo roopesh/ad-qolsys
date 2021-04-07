@@ -22,6 +22,9 @@ import sys
 # qolsys_zone_event_topic: (Optional) The topic to publish ZONE_EVENT events to; defaults to qolsys/zone_event
 # qolsys_alarming_event_topic: (Optional) The topic to publish ARMING events to; defaults to qolsys/arming
 # qolsys_disarming_event_topic: (Optional) The topic to publish DISARMING events to; defaults to qolsys/disarming
+# qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming
+# qolsys_confirm_arm_code: True/False (Optional) Require the code for arming
+# qolsys_disarm_code: (Required - if you want to disarm the alarm)
 
 class QolsysClient(mqtt.Mqtt):
     def initialize(self):
@@ -43,10 +46,11 @@ class QolsysClient(mqtt.Mqtt):
         self.__c_qolsys_arming_topic = "qolsys_alarming_event_topic"
         self.__c_qolsys_disarming_topic = "qolsys_disarming_event_topic"
         self.__c_qolsys_alarm_status_topic = "qolsys_alarm_status_topic"
+        self.__c_qolsys_disarm_code__ = "qolsys_disarm_code"
+        self.__c_qolsys_confirm_disarm_code__ = "qolsys_confirm_disarm_code"
+        self.__c_qolsys_confirm_arm_code__ = "qolsys_confirm_arm_code"
 
-        # populate some variables we'll need to use throughout our ap
-        # self.mqtt_broker = self.args[self.__c_mqtt_broker__]
-        # self.mqtt_port = self.args[self.__c_mqtt_port__] if self.__c_mqtt_port__ in self.args else 1883
+        # populate some variables we'll need to use throughout our app
         self.mqtt_namespace = self.args[self.__c_mqtt_namespace__] if self.__c_mqtt_namespace__ in self.args else ""
         self.qolsys_host = self.args[self.__c_qolsys_host__]
         self.qolsys_port = self.args[self.__c_qolsys_port__] if self.__c_qolsys_port__ in self.args else 12345
@@ -59,6 +63,9 @@ class QolsysClient(mqtt.Mqtt):
         self.qolsys_arming_event_topic = self.args[self.__c_qolsys_arming_topic] if self.__c_qolsys_arming_topic in self.args else "qolsys/arming"
         self.qolsys_disarming_event_topic = self.args[self.__c_qolsys_disarming_topic] if self.__c_qolsys_disarming_topic in self.args else "qolsys/disarming"
         self.qolsys_alarm_status_topic = self.args[self.__c_qolsys_alarm_status_topic] if self.__c_qolsys_alarm_status_topic in self.args else "qolsys/alarm/status"
+        self.qolsys_disarm_code = self.args[self.__c_qolsys_disarm_code__] if self.__c_qolsys_disarm_code__ in self.args else 9999
+        self.qolsys_confirm_disarm_code = self.args[self.__c_qolsys_confirm_disarm_code__] if self.__c_qolsys_confirm_disarm_code__ in self.args else False
+        self.qolsys_confirm_arm_code = self.args[self.__c_qolsys_confirm_arm_code__] if self.__c_qolsys_confirm_arm_code__ in self.args else False
         
         self.log("qolsys_host: %s, qolsys_port: %s, qolsys_token: %s, qolsys_timeout: %s, request_topic: %s", self.qolsys_host, self.qolsys_port, self.qolsys_token, self.qolsys_timeout, self.request_topic, level="DEBUG")
         self.log("Creating qolsys_socket", level="INFO")

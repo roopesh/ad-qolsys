@@ -1,7 +1,7 @@
 import re
 
 class partition:
-    def __init__(self, p_id: int, name: str, status: str):
+    def __init__(self, p_id: int, name: str, status: str, code: int, confirm_code_arm: bool, confirm_code_disarm: bool):
         """ Arguments:
         id: int
         name: str
@@ -12,40 +12,57 @@ class partition:
         self.name = name
         self.zones = set()
         self.entity_id = re.sub("\W", "_", self.name).lower()
-        self.payload_on = "ARMED"
-        self.payload_off = "DISARM"
+        # self.payload_on = "ARMED"
+        # self.payload_off = "DISARM"
         self.__c_disarmed__ = "disarmed"
         self.__c_armed_home__ = "armed_home"
         self.__c_armed_away__ = "armed_away"
 
-        self.config_topic = "homeassistant/binary_sensor/" + self.entity_id + "/config"
-        self.state_topic = "mqtt_states/binary_sensor/" + self.entity_id + "/state"
+        # self.config_topic = "homeassistant/binary_sensor/" + self.entity_id + "/config"
+        # self.state_topic = "mqtt_states/binary_sensor/" + self.entity_id + "/state"
         self.alarm_panel_config_topic = "homeassistant/alarm_control_panel/qolsys/" + self.entity_id + "/config"
         self.alarm_panel_state_topic = "mqtt_states/alarm_control_panel/qolsys/" + self.entity_id + "/state"
         self.status = status
+        self.code = code
+        self.confirm_code_arm = confirm_code_arm
+        self.confirm_code_disarm = confirm_code_disarm
 
     def alarm_config_payload(self):
         payload = {
             "name": self.name,
-            "code": 2102,
             "state_topic": self.alarm_panel_state_topic,
-            "code_disarm_required": False,
-            "code_arm_required": False,
+            "code_disarm_required": self.confirm_code_disarm,
+            "code_arm_required": self.confirm_code_arm,
             "command_topic":"qolsys/requests",
-            "payload_disarm":'{"event":"DISARM","token":"shw9s8", "usercode":2102, "partition_id":0}',
-            "payload_arm_home":'{"event":"ARM", "arm_type":"stay", "token":"shw9s8", "usercode":2102, "partition_id":0}',
-            "payload_arm_away":'{"event":"ARM", "arm_type":"away", "token":"shw9s8", "usercode":2102, "partition_id":0}'
+            "command_template":'{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"shw9s8", "partition_id":"' + str(self.p_id) + '"}'
         }
+        if self.confirm_code_disarm or self.confirm_code_arm:
+            payload.update({"code":self.code})
         return payload
 
-    def config_payload(self):
-        payload = {
-            "name": self.name,
-            "state_topic": self.state_topic,
-            "payload_on": self.payload_on,
-            "payload_off": self.payload_off
-        }
-        return payload
+    # def config_payload(self):
+    #     payload = {
+    #         "name": self.name,
+    #         "state_topic": self.state_topic,
+    #         "payload_on": self.payload_on,
+    #         "payload_off": self.payload_off
+    #     }
+    #     return payload
+
+    @property
+    def code(self):
+        return self.__code
+
+    @code.setter
+    def code(self, code: int):
+        self.__code = int()
+        try:
+            if int(code) and len(str(code))>=4:
+                self.__code = int(code)
+            else:
+                raise ValueError("Not a valid code")
+        except:
+            raise ValueError("Not a valid code")
 
     @property
     def status(self):
@@ -82,9 +99,9 @@ class partition:
 
     def __str__(self):
         
-        me = ("id: %s, name: %s, status: %s, entity_id: %s, payload_on: %s, payload_off: %s, \
-                config_topic: %s, state_topic: %s, zones: %s" % (self.p_id, self.name, self.status, self.entity_id, \
-                self.payload_on, self.payload_off, self.config_topic, self.state_topic, self.zones))
+        me = ("id: %s, name: %s, status: %s, entity_id: %s, \
+                alarm_panel_config_topic: %s, alarm_panel_state_topic: %s, code: %s, zones: %s" % (self.p_id, self.name, self.status, self.entity_id, \
+                self.alarm_panel_config_topic, self.alarm_panel_state_topic, self.code, self.zones))
         return me
     
     def __repr__(self):
