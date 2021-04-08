@@ -1,7 +1,7 @@
 import re
 
 class partition:
-    def __init__(self, p_id: int, name: str, status: str, code: int, confirm_code_arm: bool, confirm_code_disarm: bool):
+    def __init__(self, p_id: int, name: str, status: str, code: int, confirm_code_arm: bool, confirm_code_disarm: bool, token: str):
         """ Arguments:
         id: int
         name: str
@@ -26,6 +26,7 @@ class partition:
         self.code = code
         self.confirm_code_arm = confirm_code_arm
         self.confirm_code_disarm = confirm_code_disarm
+        self.token = token
 
     def alarm_config_payload(self):
         payload = {
@@ -34,7 +35,7 @@ class partition:
             "code_disarm_required": self.confirm_code_disarm,
             "code_arm_required": self.confirm_code_arm,
             "command_topic":"qolsys/requests",
-            "command_template":'{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"shw9s8", "partition_id":"' + str(self.p_id) + '"}'
+            "command_template":'{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
         }
         if self.confirm_code_disarm or self.confirm_code_arm:
             payload.update({"code":self.code})

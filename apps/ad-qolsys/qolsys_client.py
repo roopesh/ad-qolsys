@@ -101,19 +101,21 @@ class QolsysClient(mqtt.Mqtt):
     def terminate(self):
         try:
             self.qolsys.close_socket()
+            self.log("Socket closed")
         except:
             self.log("Error closing socket: %s", sys.exc_info(), level="ERROR")
 
         try:
             for zone in self.zones:
                 self.call_service("mqtt/publish", topic=self.zones[zone].config_topic, namespace=self.mqtt_namespace)
+            self.log("Zones removed")
         except:
             self.log("Error publishing empty zone: %s, %s", zone, sys.exc_info(), level="ERROR")
 
         try:
             for part in self.partitions:
-                self.call_service("mqtt/publish", topic=self.partitions[part].config_topic, namespace=self.mqtt_namespace)
                 self.call_service("mqtt/publish", topic=self.partitions[part].alarm_config_topic, namespace=self.mqtt_namespace)
+            self.log("Partitions removed")
         except:
             self.log("Error publishing empty partition: %s, %s", part, sys.exc_info(), level="ERROR")
 

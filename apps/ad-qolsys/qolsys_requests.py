@@ -71,7 +71,7 @@ class MQTTSubscriber:
             partition_id = part["partition_id"]
             partition_name = part["name"]
             partition_status = part["status"]
-            this_partition = partition.partition(p_id=partition_id, name=partition_name, status=partition_status, code=self.app.qolsys_disarm_code, confirm_code_arm=self.app.qolsys_confirm_arm_code, confirm_code_disarm=self.app.qolsys_confirm_disarm_code)
+            this_partition = partition.partition(p_id=partition_id, name=partition_name, status=partition_status, code=self.app.qolsys_disarm_code, confirm_code_arm=self.app.qolsys_confirm_arm_code, confirm_code_disarm=self.app.qolsys_confirm_disarm_code, token=self.app.qolsys_token)
             self.app.update_partition(partition_id, this_partition)
             # self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.config_topic, payload=json.dumps(this_partition.config_payload()))
             # self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.state_topic, payload=this_partition.status)
