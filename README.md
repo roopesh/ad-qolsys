@@ -82,6 +82,6 @@ Known issues:
 ~- I’m not yet processing arming/disarming events. The requests will work 💯, but the partition doesn’t get updated with the status. I put in another INFO request so the partition sensor will update but it’s a bit hacky for now. If you’re listening to the topics or watching logs, you’ll see a bunch of noise associated with this hack.~
 
 ~- Partition status being tracked as a `binary_sensor` instead of `alarm_control_panel`.~
-- MQTT Discovery is being published to `homeassistant/binary_sensor`. I’ll make this a config in the future. This is the default MQTT Discovery topic so I think most people will be fine.
+- MQTT Discovery is being published to `homeassistant/<component_type>`. I’ll make this a config in the future. This is the default MQTT Discovery topic so I think most people will be fine.
 
 ### I hope this works for everyone! Hit me up with feedback.
