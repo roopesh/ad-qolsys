@@ -92,13 +92,13 @@ class MQTTSubscriber:
                 # Add this zone to this partition
                 this_partition.add_zone(zoneid)
                 
-                if zone_type == "Door_Window":
+                if zone_type:
                     this_zone = door_window.door_window(
                         zoneid = zoneid,
                         name = friendly_name,
                         state = state,
                         partition_id = partition_id,
-                        device_class = "door"
+                        device_class = self.__device_class_mapping__(zone_type)
                     )
                     #self.app.zones[zoneid] = this_zone
                     
@@ -114,6 +114,18 @@ class MQTTSubscriber:
         # for zone in self.app.zones:
         #     self.app.log("zone: %s", zone, level="DEBUG")
 
+    def __device_class_mapping__(self, device_class):
+        mapping = {
+            "Door_Window": "door",
+            "SmokeDetector": "smoke",
+            "GlassBreak": "safety",
+            "Motion": "motion",
+            "Water":"moisture"
+            }
+        if device_class in mapping:
+            return mapping[device_class]
+        else:
+            return ""
     def __get_mqtt_payload_json__(self, data):
         self.app.log("data: %s", data, level="DEBUG")
         payload_json = {}
