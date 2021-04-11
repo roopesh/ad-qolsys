@@ -59,8 +59,6 @@ class qolsys:
             
             self.app.log("Starting listener thread", level="INFO")
             self._start_listener()
-            #self.listening_thread = threading.Thread(target=self.listen, args=([cb]))
-            #self.listening_thread.start()
             self.app.log("started listener", level="INFO")
             
             return True
@@ -107,7 +105,7 @@ class qolsys:
             time.sleep(1)
         try:
             while self._wrappedSocket._connected and self.__listening__:
-                data = self._wrappedSocket.recv(4096).decode()
+                data = self._wrappedSocket.recv(8192).decode()
                 if len(data) > 0:
                     self.app.log("data received from qolsys panel: %s len(data): %s", data, len(data), level="DEBUG")
                     if is_json(data):
@@ -115,11 +113,10 @@ class qolsys:
                             cb(data)
                         except:
                             self.app.log("Error calling callback: %s", cb, sys.exc_info(), level="ERROR")
-                        #print(data)
                     else:
                         if data != 'ACK\n':
                             pass
-                        #self.app.log(("non json data:", data))
+                        self.app.log("non json data: %s", data, level="DEBUG")
                 else:
                     self.app.log("No data received.  Bad token?  Detatching.", level="ERROR")
                     self._wrappedSocket.detach()
