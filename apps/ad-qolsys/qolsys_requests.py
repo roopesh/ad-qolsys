@@ -35,7 +35,7 @@ class MQTTSubscriber:
         self.app.update_zone(zoneid, this_zone)
         self.app.log("Zones: %s", self.app.zones, level="DEBUG")
         self.app.log("Publishing to: %s, Payload: %s", this_zone.state_topic, state, level="INFO")
-        self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = true, topic=this_zone.state_topic, payload=state)
+        self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = True, topic=this_zone.state_topic, payload=state)
 
     def mqtt_arming_event_received(self, event_name, data, kwargs):
         self.app.log("Got arming event: %s", data, level="INFO")
@@ -50,7 +50,7 @@ class MQTTSubscriber:
         self.app.update_zone(partition_id, this_partition)
         self.app.log("Partitions: %s", self.app.partitions, level="INFO")
         self.app.log("Publishing to: %s, Payload: %s", this_partition.alarm_panel_state_topic, this_partition.status, level="INFO")
-        self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = true, topic=this_partition.alarm_panel_state_topic, payload=this_partition.status)
+        self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = True, topic=this_partition.alarm_panel_state_topic, payload=this_partition.status)
 
     def mqtt_zone_event_event_received(self, event_name, data, kwargs):
         self.app.log("Got zone event: %s", data, level="DEBUG")
@@ -76,8 +76,8 @@ class MQTTSubscriber:
             # self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.config_topic, payload=json.dumps(this_partition.config_payload()))
             # self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.state_topic, payload=this_partition.status)
             # self.app.log("topic: %s, payload: %s", this_partition.alarm_panel_config_topic, this_partition.alarm_config_payload())
-            self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = true, topic=this_partition.alarm_panel_config_topic, payload=json.dumps(this_partition.alarm_config_payload()))
-            self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = true, topic=this_partition.alarm_panel_state_topic, payload=this_partition.status)
+            self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = True, topic=this_partition.alarm_panel_config_topic, payload=json.dumps(this_partition.alarm_config_payload()))
+            self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain = True, topic=this_partition.alarm_panel_state_topic, payload=this_partition.status)
 
 
             # self.app.partitions[partition_id] = partition_name
@@ -105,8 +105,8 @@ class MQTTSubscriber:
 
                     self.app.update_zone(zoneid, this_zone)
                     self.app.log("Publishing zone: %s", json.dumps(this_zone.config_payload()), level="DEBUG")
-                    self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain=true, topic=this_zone.config_topic, payload=json.dumps(this_zone.config_payload()))
-                    self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain=true, topic=this_zone.state_topic, payload=this_zone.state)
+                    self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain=True, topic=this_zone.config_topic, payload=json.dumps(this_zone.config_payload()))
+                    self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, retain=True, topic=this_zone.state_topic, payload=this_zone.state)
 
         # done creating the zones
         # self.app.log("Partitions: %s", self.app.partitions, level="INFO")
