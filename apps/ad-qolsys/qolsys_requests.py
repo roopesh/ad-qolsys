@@ -199,7 +199,10 @@ class MQTTSubscriber:
             usercode = payload_json["usercode"] if "usercode" in payload_json else None
             partition_id = payload_json["partition_id"] if "partition_id" in payload_json else None
             arm_type = payload_json["arm_type"] if "arm_type" in payload_json else None
+            
             instant = payload_json["instant"] if "instant" in payload_json else False
+            if self.app.qolsys_arm_away_always_instant: instant = True
+            
             self.app.log("event: %s, usercode: %s, partition_id: %s, arm_type: %s, instant: %s", event_type, usercode, partition_id, arm_type, instant, level="INFO")
             if token == None:
                 #raise("Token required for anything you want to do")

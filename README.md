@@ -25,6 +25,7 @@ Arguments in apps.yaml:
 # qolsys_disarm_code: (Required - if you want to disarm the alarm)
 # qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming; defaults to False
 # qolsys_confirm_arm_code: True/False (Optional) Require the code for arming; defaults to False
+# qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
 ```
 
 You’ll need you appdaemon's apps.yaml to include an app with this module and class:
@@ -46,6 +47,7 @@ qolsys_panel:
   qolsys_disarm_code: 4567 # Optional - Required if you want to disarm the panel
   qolsys_confirm_arm_code: False
   qolsys_confirm_disarm_code: False
+  qolsys_arm_away_always_instant: False
 ```
 
 As far MQTT is concerned, I had to figure out how to enable MQTT inside AppDaemon. In case you’re new to AppDaemon and have the same questions, I had to put this in my appdaemon.yaml:

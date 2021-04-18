@@ -50,6 +50,7 @@ class QolsysClient(mqtt.Mqtt):
         self.__c_qolsys_disarm_code__ = "qolsys_disarm_code"
         self.__c_qolsys_confirm_disarm_code__ = "qolsys_confirm_disarm_code"
         self.__c_qolsys_confirm_arm_code__ = "qolsys_confirm_arm_code"
+        self.__c_qolsys_arm_away_always_instant__ = "qolsys_arm_away_always_instant"
 
         # populate some variables we'll need to use throughout our app
         self.mqtt_namespace = self.args[self.__c_mqtt_namespace__] if self.__c_mqtt_namespace__ in self.args else ""
@@ -67,6 +68,7 @@ class QolsysClient(mqtt.Mqtt):
         self.qolsys_disarm_code = self.args[self.__c_qolsys_disarm_code__] if self.__c_qolsys_disarm_code__ in self.args else 9999
         self.qolsys_confirm_disarm_code = self.args[self.__c_qolsys_confirm_disarm_code__] if self.__c_qolsys_confirm_disarm_code__ in self.args else False
         self.qolsys_confirm_arm_code = self.args[self.__c_qolsys_confirm_arm_code__] if self.__c_qolsys_confirm_arm_code__ in self.args else False
+        self.qolsys_arm_away_always_instant = self.args[self.__c_qolsys_arm_away_always_instant__] if self.__c_qolsys_arm_away_always_instant__ in self.args else False
         self.mqtt_plugin_config = self.get_plugin_config(namespace=self.mqtt_namespace)
         
         self.log("qolsys_host: %s, qolsys_port: %s, qolsys_token: %s, qolsys_timeout: %s, request_topic: %s", self.qolsys_host, self.qolsys_port, self.qolsys_token, self.qolsys_timeout, self.request_topic, level="DEBUG")
