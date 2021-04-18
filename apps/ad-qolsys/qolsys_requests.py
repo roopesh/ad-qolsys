@@ -71,13 +71,31 @@ class MQTTSubscriber:
             partition_id = part["partition_id"]
             partition_name = part["name"]
             partition_status = part["status"]
-            this_partition = partition.partition(p_id=partition_id, name=partition_name, status=partition_status, code=self.app.qolsys_disarm_code, confirm_code_arm=self.app.qolsys_confirm_arm_code, confirm_code_disarm=self.app.qolsys_confirm_disarm_code, token=self.app.qolsys_token)
+            self.app.log(self.app.mqtt_plugin_config)
+            will_topic = self.app.mqtt_plugin_config["will_topic"]
+            will_payload = self.app.mqtt_plugin_config["will_payload"]
+            birth_topic = self.app.mqtt_plugin_config["birth_topic"]
+            birth_payload = self.app.mqtt_plugin_config["birth_payload"]
+            this_partition = partition.partition(
+                p_id=partition_id, 
+                name=partition_name, 
+                status=partition_status, 
+                code=self.app.qolsys_disarm_code, 
+                confirm_code_arm=self.app.qolsys_confirm_arm_code, 
+                confirm_code_disarm=self.app.qolsys_confirm_disarm_code, 
+                token=self.app.qolsys_token,
+                will_topic = will_topic,
+                will_payload = will_payload,
+                birth_topic = birth_topic,
+                birth_payload = birth_payload
+            )
             self.app.update_partition(partition_id, this_partition)
             # self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.config_topic, payload=json.dumps(this_partition.config_payload()))
             # self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.state_topic, payload=this_partition.status)
             # self.app.log("topic: %s, payload: %s", this_partition.alarm_panel_config_topic, this_partition.alarm_config_payload())
-            self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.alarm_panel_config_topic, payload=json.dumps(this_partition.alarm_config_payload()))
+            self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.alarm_panel_config_topic, retain=True, payload=json.dumps(this_partition.alarm_config_payload()))
             self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.alarm_panel_state_topic, payload=this_partition.status)
+            self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.availability_topic, payload=this_partition.payload_available)
 
 
             # self.app.partitions[partition_id] = partition_name
@@ -98,15 +116,20 @@ class MQTTSubscriber:
                         name = friendly_name,
                         state = state,
                         partition_id = partition_id,
-                        device_class = self.__device_class_mapping__(zone_type)
+                        device_class = self.__device_class_mapping__(zone_type),
+                        will_topic = will_topic,
+                        will_payload = will_payload,
+                        birth_topic = birth_topic,
+                        birth_payload = birth_payload
                     )
                     #self.app.zones[zoneid] = this_zone
                     
 
                     self.app.update_zone(zoneid, this_zone)
                     self.app.log("Publishing zone: %s", json.dumps(this_zone.config_payload()), level="DEBUG")
-                    self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_zone.config_topic, payload=json.dumps(this_zone.config_payload()))
+                    self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_zone.config_topic, retain=True, payload=json.dumps(this_zone.config_payload()))
                     self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_zone.state_topic, payload=this_zone.state)
+                    self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_zone.availability_topic, payload=this_zone.payload_available)
 
         # done creating the zones
         # self.app.log("Partitions: %s", self.app.partitions, level="INFO")

@@ -25,6 +25,7 @@ import sys
 # qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming
 # qolsys_confirm_arm_code: True/False (Optional) Require the code for arming
 # qolsys_disarm_code: (Required - if you want to disarm the alarm)
+# 
 
 class QolsysClient(mqtt.Mqtt):
     def initialize(self):
@@ -66,6 +67,7 @@ class QolsysClient(mqtt.Mqtt):
         self.qolsys_disarm_code = self.args[self.__c_qolsys_disarm_code__] if self.__c_qolsys_disarm_code__ in self.args else 9999
         self.qolsys_confirm_disarm_code = self.args[self.__c_qolsys_confirm_disarm_code__] if self.__c_qolsys_confirm_disarm_code__ in self.args else False
         self.qolsys_confirm_arm_code = self.args[self.__c_qolsys_confirm_arm_code__] if self.__c_qolsys_confirm_arm_code__ in self.args else False
+        self.mqtt_plugin_config = self.get_plugin_config(namespace=self.mqtt_namespace)
         
         self.log("qolsys_host: %s, qolsys_port: %s, qolsys_token: %s, qolsys_timeout: %s, request_topic: %s", self.qolsys_host, self.qolsys_port, self.qolsys_token, self.qolsys_timeout, self.request_topic, level="DEBUG")
         self.log("Creating qolsys_socket", level="INFO")
@@ -98,6 +100,9 @@ class QolsysClient(mqtt.Mqtt):
         info_payload = {"event":"INFO", "token":self.qolsys_token}
         self.call_service("mqtt/publish", namespace=self.mqtt_namespace, topic=self.request_topic, payload=json.dumps(info_payload))
 
+        # config = self.get_plugin_config(namespace=self.mqtt_namespace)
+        # self.log(config)
+
     def terminate(self):
         try:
             self.qolsys.close_socket()
@@ -107,17 +112,19 @@ class QolsysClient(mqtt.Mqtt):
 
         try:
             for zone in self.zones:
-                self.call_service("mqtt/publish", topic=self.zones[zone].config_topic, namespace=self.mqtt_namespace)
+                # self.call_service("mqtt/publish", topic=self.zones[zone].config_topic, namespace=self.mqtt_namespace)
+                self.call_service("mqtt/publish", namespace=self.mqtt_namespace, topic=self.zones[zone].availability_topic, payload=self.zones[zone].payload_not_available, retain=True)
             self.log("Zones removed")
         except:
             self.log("Error publishing empty zone: %s, %s", zone, sys.exc_info(), level="ERROR")
 
         try:
             for part in self.partitions:
-                self.call_service("mqtt/publish", topic=self.partitions[part].alarm_config_topic, namespace=self.mqtt_namespace)
-            self.log("Partitions removed")
+                #self.call_service("mqtt/publish", topic=self.partitions[part].alarm_config_topic, namespace=self.mqtt_namespace)
+                self.call_service("mqtt/publish", namespace=self.mqtt_namespace, topic=self.partitions[part].availability_topic, payload=self.partitions[part].payload_not_available, retain=True)
+            self.log("Partitions set to unavailable")
         except:
-            self.log("Error publishing empty partition: %s, %s", part, sys.exc_info(), level="ERROR")
+            self.log("Error publishing offlining partition: %s, %s", part, sys.exc_info(), level="ERROR")
 
         self.log("Terminated")
 
