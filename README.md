@@ -7,6 +7,8 @@ Fully self-contained AppDaemon app.  If you have HA MQTT Discovery turned on, yo
 
 You’ll also have an alarm_control_panel for each partition.  If you use the alarm panel component in HA, you don't have to worry about sending commands to the panel.  It'll all be auto-magiced with MQTT discovery.
 
+Utilizes the MQTT plugin's `will_topic` to detect if AppDaemon is offline.  In order for this to work, MQTT plugin's `will_topic` and `birth_topic` _*must*_ be the same.  If they are not the same, AppDaemon's availability will be ignored and the `alarm_control_panel` and any `binary_sensor`'s statuses can be out of sync with reality during/after restarts.
+
 Arguments in apps.yaml:
 
 ```yaml
@@ -88,10 +90,6 @@ You can send commands to the Qolsys panel on the `request_topic` in the config (
 Known issues:
 
 - When the app reloads, sometimes it doesn’t reconnect to the socket and it just hangs the entire app. The only way I’ve been able to recover is to restart AppDaemon. If anyone has a way to detect and fix this, let me know or issue a pull request.
-
-~- I’m not yet processing arming/disarming events. The requests will work 💯, but the partition doesn’t get updated with the status. I put in another INFO request so the partition sensor will update but it’s a bit hacky for now. If you’re listening to the topics or watching logs, you’ll see a bunch of noise associated with this hack.~
-
-~- Partition status being tracked as a `binary_sensor` instead of `alarm_control_panel`.~
 
 - MQTT Discovery is being published to `homeassistant/<component_type>`. I’ll make this a config in the future. This is the default MQTT Discovery topic so I think most people will be fine.
 
