@@ -71,7 +71,7 @@ class MQTTSubscriber:
             partition_id = part["partition_id"]
             partition_name = part["name"]
             partition_status = part["status"]
-            self.app.log(self.app.mqtt_plugin_config)
+            # self.app.log(self.app.mqtt_plugin_config)
             will_topic = self.app.mqtt_plugin_config["will_topic"]
             will_payload = self.app.mqtt_plugin_config["will_payload"]
             birth_topic = self.app.mqtt_plugin_config["birth_topic"]
@@ -180,6 +180,7 @@ class MQTTSubscriber:
                     usercode                Required if disarming
                     partition_id            Required if arming or disarming.  0 is a good value if you don't know what to use
                     arm_type                Required if arming.  Options are "away" or "stay"
+                    instant                 Optional during away arming.  Sets delay to 0.
                 '''
 
         self.app.log("event_name: %s", event_name, level="DEBUG")
@@ -198,28 +199,29 @@ class MQTTSubscriber:
             usercode = payload_json["usercode"] if "usercode" in payload_json else None
             partition_id = payload_json["partition_id"] if "partition_id" in payload_json else None
             arm_type = payload_json["arm_type"] if "arm_type" in payload_json else None
-            self.app.log("event: %s, usercode: %s, partition_id: %s, arm_type: %s", event_type, usercode, partition_id, arm_type, level="INFO")
+            instant = payload_json["instant"] if "instant" in payload_json else False
+            self.app.log("event: %s, usercode: %s, partition_id: %s, arm_type: %s, instant: %s", event_type, usercode, partition_id, arm_type, instant, level="INFO")
             if token == None:
                 #raise("Token required for anything you want to do")
                 self.app.log("No token provided.  Token is required for anything you want to do with the Qolsys panel", level="ERROR")
             else:
                 if event_type == "INFO":
-                    self.__qolsys_status__(self.qolsys, token)
+                    self.__qolsys_status__(qolsys=self.qolsys, token=token)
                 
                 if event_type == "ARM":
                     if partition_id is None or arm_type is None:
                         self.app.log("arm_type and partition_id are required", level="ERROR")
                     else:                    
-                        self.__qolsys_arm__(self.qolsys, token, arm_type, partition_id)
+                        self.__qolsys_arm__(qolsys=self.qolsys, token=token, arming_type=arm_type, partition_id=partition_id, instant=instant, usercode=usercode)
 
                 if event_type == "DISARM":
                     arm_type = "disarm"
                     if partition_id is None or arm_type is None or usercode is None:
                         self.app.log("arm_type, partition_id, and usercode are required", level="ERROR")
                     else:                    
-                        self.__qolsys_arm__(self.qolsys, token, "disarm", partition_id, usercode)
+                        self.__qolsys_arm__(qolsys=self.qolsys, token=token, arming_type="disarm", partition_id=partition_id, usercode=usercode)
 
-    def __qolsys_arm__(self, qolsys, token:str, arming_type:str, partition_id:int, usercode=""):
+    def __qolsys_arm__(self, qolsys, token:str, arming_type:str, partition_id:int, instant=False, usercode=""):
         if not arming_type in self._arming_types:
             raise("Invalid arm command")
 
@@ -249,6 +251,9 @@ class MQTTSubscriber:
         #Disarm requires a usercode
         if arming_type.lower() == "disarm":
             armString.update({"usercode":usercode})
+
+        if arming_type.lower() == "away" and instant:
+            armString.update({"delay":0})
 
         try:
             self.app.log("armString: %s", armString, level="INFO")

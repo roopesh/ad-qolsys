@@ -17,6 +17,7 @@ class partition:
         self.__c_disarmed__ = "disarmed"
         self.__c_armed_home__ = "armed_home"
         self.__c_armed_away__ = "armed_away"
+        self.__c_arming__ = "arming"
         self.__c_command_topic__ = "command_topic"
         self.__c_will_topic__ = "will_topic"
         self.__c_will_payload__ = "will_payload"
@@ -107,13 +108,18 @@ class partition:
         __c_ARM_STAY__ = "ARM_STAY"
         __c_ARM_DELAY__ = "EXIT_DELAY"
         __c_DISARM__ = "DISARM"
-        valid_values = {__c_ARM_STAY__, __c_ARM_DELAY__, __c_DISARM__}
+        __c_ENTRY_DELAY__ = "ENTRY_DELAY"
+        __c_ARM_AWAY__ = "ARM_AWAY"
+        valid_values = {__c_ARM_STAY__, __c_ARM_AWAY__, __c_ARM_DELAY__, __c_DISARM__, __c_ENTRY_DELAY__}
         if not status in valid_values:
+            self.__status = "unavailable"
             raise ValueError("Not a valid status: '" + status + "' not in " + str(valid_values))
         elif status in {__c_ARM_STAY__}:
             # self.__status = self.payload_on
             self.__status = self.__c_armed_home__
         elif status in {__c_ARM_DELAY__}:
+            self.__status = self.__c_arming__
+        elif status in {__c_ENTRY_DELAY__, __c_ARM_AWAY__}:
             self.__status = self.__c_armed_away__
         elif status in {__c_DISARM__}:
             # self.__status = self.payload_off

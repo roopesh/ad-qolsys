@@ -83,6 +83,9 @@ You can send commands to the Qolsys panel on the `request_topic` in the config (
 # Arm away
 {"event":"ARM", "arm_type":"away", "partition_id": 0, "token":"blah"}
 
+# (Variant) Arm away - Instant
+{"event":"ARM", "arm_type":"away", "partition_id": 0, "token":"blah", "instant": true}
+
 # Disarm
 {"event":"DISARM", "usercode":0000, "token":"blah"}
 ```

@@ -138,6 +138,9 @@ class QolsysClient(mqtt.Mqtt):
         topic = "" #self.event_parent_topic
         jdata = json.loads(data)
         event_type = jdata["event"]
+
+        if event_type == "ERROR":
+            self.log("ERROR event: %s", data, level="ERROR")
         if event_type == "INFO":
             topic = self.qolsys_info_topic
 
