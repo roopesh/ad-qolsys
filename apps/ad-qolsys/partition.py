@@ -23,10 +23,10 @@ class partition:
         self.__c_will_payload__ = "will_payload"
         self.__c_birth_topic__ = "birth_topic"
         self.__c_birth_payload__ = "birth_payload"
+        self.__c_homeassistant_mqtt_discovery_topic__ = "homeassistant_mqtt_discovery_topic"
+        self.__c_mqtt_state_topic__ = "mqtt_state_topic"
+        self.__c_mqtt_availability_topic__ = "mqtt_availability_topic"
         
-        self.alarm_panel_config_topic = "homeassistant/alarm_control_panel/qolsys/" + self.entity_id + "/config"
-        self.alarm_panel_state_topic = "mqtt_states/alarm_control_panel/qolsys/" + self.entity_id + "/state"
-        self.availability_topic = "mqtt_availability/alarm_control_panel/qolsys/" + self.entity_id + "/availability"
         self.status = status
         self.code = code
         self.confirm_code_arm = confirm_code_arm
@@ -34,13 +34,20 @@ class partition:
         self.token = token
         self.payload_available = "online"
         self.payload_not_available = "offline"
-        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
         self.command_topic = kwargs[self.__c_command_topic__] if self.__c_command_topic__ in kwargs else "qolsys/requests"
         self.will_topic = kwargs[self.__c_will_topic__] if self.__c_will_topic__ in kwargs else "mqtt-client/status"
         self.birth_topic = kwargs[self.__c_birth_topic__] if self.__c_birth_topic__ in kwargs else "mqtt-client/status"
         self.will_payload = kwargs[self.__c_will_payload__] if self.__c_will_payload__ in kwargs else "offline"
         self.birth_payload = kwargs[self.__c_birth_payload__] if self.__c_birth_payload__ in kwargs else "online"
+        self.homeassistant_mqtt_discovery_topic = kwargs[self.__c_homeassistant_mqtt_discovery_topic__] if self.__c_homeassistant_mqtt_discovery_topic__ in kwargs else "homeassistant/"
+        self.mqtt_state_topic = kwargs[self.__c_mqtt_state_topic__] if self.__c_mqtt_state_topic__ in kwargs else "mqtt-states/"
+        self.mqtt_availability_topic = kwargs[self.__c_mqtt_availability_topic__] if self.__c_mqtt_availability_topic__ in kwargs else "mqtt-availability/"
 
+        self.alarm_panel_config_topic = self.homeassistant_mqtt_discovery_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/config"
+        self.alarm_panel_state_topic = self.mqtt_state_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/state"
+        self.availability_topic = self.mqtt_availability_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/availability"
+        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
+        
     @property
     def availability_list(self):
         al = [
@@ -75,15 +82,6 @@ class partition:
             payload.update({"code": self.code})
         return payload
 
-    # def config_payload(self):
-    #     payload = {
-    #         "name": self.name,
-    #         "state_topic": self.state_topic,
-    #         "payload_on": self.payload_on,
-    #         "payload_off": self.payload_off
-    #     }
-    #     return payload
-
     @property
     def code(self):
         return self.__code
@@ -110,19 +108,19 @@ class partition:
         __c_DISARM__ = "DISARM"
         __c_ENTRY_DELAY__ = "ENTRY_DELAY"
         __c_ARM_AWAY__ = "ARM_AWAY"
-        valid_values = {__c_ARM_STAY__, __c_ARM_AWAY__, __c_ARM_DELAY__, __c_DISARM__, __c_ENTRY_DELAY__}
+        __c_ARM_AWAY_EXIT_DELAY__ = "ARM-AWAY-EXIT-DELAY"
+        valid_values = {__c_ARM_STAY__, __c_ARM_AWAY__, __c_ARM_DELAY__, __c_DISARM__, __c_ENTRY_DELAY__, __c_ARM_AWAY_EXIT_DELAY__}
+
         if not status in valid_values:
             self.__status = "unavailable"
             raise ValueError("Not a valid status: '" + status + "' not in " + str(valid_values))
-        elif status in {__c_ARM_STAY__}:
-            # self.__status = self.payload_on
+        elif status in {__c_ARM_STAY__}: # Maps values to armed_home status
             self.__status = self.__c_armed_home__
-        elif status in {__c_ARM_DELAY__}:
+        elif status in {__c_ARM_DELAY__, __c_ARM_AWAY_EXIT_DELAY__}: # Maps values to arming status
             self.__status = self.__c_arming__
-        elif status in {__c_ENTRY_DELAY__, __c_ARM_AWAY__}:
+        elif status in {__c_ENTRY_DELAY__, __c_ARM_AWAY__}: # Maps panel status values to armed_away
             self.__status = self.__c_armed_away__
-        elif status in {__c_DISARM__}:
-            # self.__status = self.payload_off
+        elif status in {__c_DISARM__}: # Maps panel status values to disarmed
             self.__status = self.__c_disarmed__
         else:
             raise ValueError("Not sure why it wouldn't set the status")
@@ -145,4 +143,14 @@ class partition:
         return me
     
     def __repr__(self):
-        return self.__str__()
+        me = {
+            "id": self.p_id,
+            "name": self.name,
+            "status": self.status,
+            "entity_id": self.entity_id,
+            "alarm_panel_config_topic": self.alarm_panel_config_topic,
+            "alarm_panel_state_topic": self.alarm_panel_state_topic,
+            "code": self.code,
+            "zones": self.zones
+        }
+        return me

@@ -25,9 +25,34 @@ import sys
 # qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming
 # qolsys_confirm_arm_code: True/False (Optional) Require the code for arming
 # qolsys_disarm_code: (Required - if you want to disarm the alarm)
-# 
+# qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
 
 class QolsysClient(mqtt.Mqtt):
+    def get_arg(self, name: str, arr: list, default=None):
+
+        if not name:
+            raise ValueError("Need a name of a value")
+        if not arr:
+            arr = self.args
+
+        ret_value = arr[name] if name in arr else default
+
+        return ret_value
+
+    def fix_topic_name(self, topic_name):
+        try:
+            if topic_name:
+                if topic_name.endswith("/"):
+                    return topic_name
+                else:
+                    return (topic_name + "/")
+            else:
+                self.log("Not a valid topic: %s", topic_name, level="ERROR")
+                raise("Not a valid topic" + str(topic_name))
+        except:
+            self.log("Unable to fix topic_name: %s, Error: %s", topic_name, sys.exc_info(), level="ERROR")
+            return ""
+
     def initialize(self):
         
         # An array of the zones
@@ -51,9 +76,17 @@ class QolsysClient(mqtt.Mqtt):
         self.__c_qolsys_confirm_disarm_code__ = "qolsys_confirm_disarm_code"
         self.__c_qolsys_confirm_arm_code__ = "qolsys_confirm_arm_code"
         self.__c_qolsys_arm_away_always_instant__ = "qolsys_arm_away_always_instant"
+        self.__c_homeassistant_mqtt_discovery_topic__ = "homeassistant_mqtt_discovery_topic"
+        self.__c_mqtt_state_topic__ = "mqtt_state_topic"
+        self.__c_mqtt_availability_topic__ = "mqtt_availability_topic"
+        self.__c_mqtt_will_topic__ = "will_topic"
+        self.__c_mqtt_will_payload__ = "will_payload"
+        self.__c_mqtt_birth_topic__ = "birth_topic"
+        self.__c_mqtt_birth_payload__ = "birth_payload"
 
         # populate some variables we'll need to use throughout our app
-        self.mqtt_namespace = self.args[self.__c_mqtt_namespace__] if self.__c_mqtt_namespace__ in self.args else ""
+        self.mqtt_namespace = self.get_arg(name=self.__c_mqtt_namespace__, arr=self.args, default="")
+        # self.mqtt_namespace = self.args[self.__c_mqtt_namespace__] if self.__c_mqtt_namespace__ in self.args else ""
         self.qolsys_host = self.args[self.__c_qolsys_host__]
         self.qolsys_port = self.args[self.__c_qolsys_port__] if self.__c_qolsys_port__ in self.args else 12345
         self.request_topic = self.args[self.__c_qolsys_request_topic__] if self.__c_qolsys_request_topic__ in self.args else "qolsys/requests"
@@ -69,8 +102,17 @@ class QolsysClient(mqtt.Mqtt):
         self.qolsys_confirm_disarm_code = self.args[self.__c_qolsys_confirm_disarm_code__] if self.__c_qolsys_confirm_disarm_code__ in self.args else False
         self.qolsys_confirm_arm_code = self.args[self.__c_qolsys_confirm_arm_code__] if self.__c_qolsys_confirm_arm_code__ in self.args else False
         self.qolsys_arm_away_always_instant = self.args[self.__c_qolsys_arm_away_always_instant__] if self.__c_qolsys_arm_away_always_instant__ in self.args else False
+        self.homeassistant_mqtt_discovery_topic = self.fix_topic_name(self.get_arg(self.__c_homeassistant_mqtt_discovery_topic__, self.args, "homeassistant/"))
+        self.mqtt_state_topic = self.fix_topic_name(self.get_arg(self.__c_mqtt_state_topic__, self.args, "mqtt-states/"))
+        self.mqtt_availability_topic = self.fix_topic_name(self.get_arg(self.__c_mqtt_availability_topic__, self.args, "mqtt-availability/"))
         self.mqtt_plugin_config = self.get_plugin_config(namespace=self.mqtt_namespace)
+        self.mqtt_will_topic = self.get_arg(name=self.__c_mqtt_will_topic__, arr=self.mqtt_plugin_config)
+        self.mqtt_will_payload = self.get_arg(name=self.__c_mqtt_will_payload__, arr=self.mqtt_plugin_config)
+        self.mqtt_birth_topic = self.get_arg(name=self.__c_mqtt_birth_topic__, arr=self.mqtt_plugin_config)
+        self.mqtt_birth_payload = self.get_arg(name=self.__c_mqtt_birth_payload__, arr=self.mqtt_plugin_config)
         
+        
+
         self.log("qolsys_host: %s, qolsys_port: %s, qolsys_token: %s, qolsys_timeout: %s, request_topic: %s", self.qolsys_host, self.qolsys_port, self.qolsys_token, self.qolsys_timeout, self.request_topic, level="DEBUG")
         self.log("Creating qolsys_socket", level="INFO")
         self.qolsys = qolsys_socket.qolsys(self)
