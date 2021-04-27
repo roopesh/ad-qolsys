@@ -127,7 +127,7 @@ class qolsys:
         except NoDataError:
             self._reset_socket()
             raise NoDataError
-        except: TimeoutError:
+        except TimeoutError:
             self.app.log("qolsys socket TimeoutError: %s", sys.exc_info(), level="ERROR")
             self._reset_socket
             raise NoDataError
