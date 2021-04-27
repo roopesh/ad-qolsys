@@ -26,6 +26,9 @@ Arguments in apps.yaml:
 # qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming; defaults to False
 # qolsys_confirm_arm_code: True/False (Optional) Require the code for arming; defaults to False
 # qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
+# homeassistant_mqtt_discovery_topic: homeassistant/ (Optional) The topic Home Assistant is using for MQTT Discovery (homeassistant/ is the default in HA and here)
+# mqtt_state_topic: mqtt-states (Optional) The topic to publish state updates to for the alarm_control_panel and binary_sensor (default: mqtt-states)
+# mqtt_availability_topic: mqtt-availability (Optional) The topic to publish availability events to for the alarm_control_panel and binary_sensor (default: mqtt-availability)
 ```
 
 You’ll need you appdaemon's apps.yaml to include an app with this module and class:
@@ -95,7 +98,5 @@ You can send commands to the Qolsys panel on the `request_topic` in the config (
 Known issues:
 
 - When the app reloads, sometimes it doesn’t reconnect to the socket and it just hangs the entire app. The only way I’ve been able to recover is to restart AppDaemon. If anyone has a way to detect and fix this, let me know or issue a pull request.
-
-- MQTT Discovery is being published to `homeassistant/<component_type>`. I’ll make this a config in the future. This is the default MQTT Discovery topic so I think most people will be fine.
 
 ## I hope this works for everyone! Hit me up with feedback
