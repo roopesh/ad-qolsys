@@ -72,10 +72,7 @@ class MQTTSubscriber:
             partition_name = part["name"]
             partition_status = part["status"]
             # self.app.log(self.app.mqtt_plugin_config)
-            will_topic = self.app.mqtt_plugin_config["will_topic"]
-            will_payload = self.app.mqtt_plugin_config["will_payload"]
-            birth_topic = self.app.mqtt_plugin_config["birth_topic"]
-            birth_payload = self.app.mqtt_plugin_config["birth_payload"]
+            homeassistant_mqtt_discovery_topic = self.app.homeassistant_mqtt_discovery_topic
             this_partition = partition.partition(
                 p_id=partition_id, 
                 name=partition_name, 
@@ -84,10 +81,13 @@ class MQTTSubscriber:
                 confirm_code_arm=self.app.qolsys_confirm_arm_code, 
                 confirm_code_disarm=self.app.qolsys_confirm_disarm_code, 
                 token=self.app.qolsys_token,
-                will_topic = will_topic,
-                will_payload = will_payload,
-                birth_topic = birth_topic,
-                birth_payload = birth_payload
+                will_topic = self.app.mqtt_will_topic,
+                will_payload = self.app.mqtt_will_topic,
+                birth_topic = self.app.mqtt_birth_topic,
+                birth_payload = self.app.mqtt_birth_payload,
+                homeassistant_mqtt_discovery_topic = homeassistant_mqtt_discovery_topic,
+                mqtt_state_topic = self.app.mqtt_state_topic,
+                mqtt_availability_topic = self.app.mqtt_availability_topic
             )
             self.app.update_partition(partition_id, this_partition)
             # self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.config_topic, payload=json.dumps(this_partition.config_payload()))
@@ -117,10 +117,13 @@ class MQTTSubscriber:
                         state = state,
                         partition_id = partition_id,
                         device_class = self.__device_class_mapping__(zone_type),
-                        will_topic = will_topic,
-                        will_payload = will_payload,
-                        birth_topic = birth_topic,
-                        birth_payload = birth_payload
+                        will_topic = self.app.mqtt_will_topic,
+                        will_payload = self.app.mqtt_will_topic,
+                        birth_topic = self.app.mqtt_birth_topic,
+                        birth_payload = self.app.mqtt_birth_payload,
+                        homeassistant_mqtt_discovery_topic = homeassistant_mqtt_discovery_topic,
+                        mqtt_state_topic = self.app.mqtt_state_topic,
+                        mqtt_availability_topic = self.app.mqtt_availability_topic
                     )
                     #self.app.zones[zoneid] = this_zone
                     
@@ -181,6 +184,7 @@ class MQTTSubscriber:
                     partition_id            Required if arming or disarming.  0 is a good value if you don't know what to use
                     arm_type                Required if arming.  Options are "away" or "stay"
                     instant                 Optional during away arming.  Sets delay to 0.
+                    delay                   Optional delay in seconds when arming away
                 '''
 
         self.app.log("event_name: %s", event_name, level="DEBUG")
@@ -199,6 +203,7 @@ class MQTTSubscriber:
             usercode = payload_json["usercode"] if "usercode" in payload_json else None
             partition_id = payload_json["partition_id"] if "partition_id" in payload_json else None
             arm_type = payload_json["arm_type"] if "arm_type" in payload_json else None
+            delay = payload_json["delay"] if "delay" in payload_json else -1
             
             instant = payload_json["instant"] if "instant" in payload_json else False
             if self.app.qolsys_arm_away_always_instant: instant = True
@@ -215,7 +220,7 @@ class MQTTSubscriber:
                     if partition_id is None or arm_type is None:
                         self.app.log("arm_type and partition_id are required", level="ERROR")
                     else:                    
-                        self.__qolsys_arm__(qolsys=self.qolsys, token=token, arming_type=arm_type, partition_id=partition_id, instant=instant, usercode=usercode)
+                        self.__qolsys_arm__(qolsys=self.qolsys, token=token, arming_type=arm_type, partition_id=partition_id, instant=instant, usercode=usercode, delay=delay)
 
                 if event_type == "DISARM":
                     arm_type = "disarm"
@@ -224,7 +229,7 @@ class MQTTSubscriber:
                     else:                    
                         self.__qolsys_arm__(qolsys=self.qolsys, token=token, arming_type="disarm", partition_id=partition_id, usercode=usercode)
 
-    def __qolsys_arm__(self, qolsys, token:str, arming_type:str, partition_id:int, instant=False, usercode=""):
+    def __qolsys_arm__(self, qolsys, token:str, arming_type:str, partition_id:int, instant=False, usercode="", delay=-1):
         if not arming_type in self._arming_types:
             raise("Invalid arm command")
 
@@ -256,7 +261,10 @@ class MQTTSubscriber:
             armString.update({"usercode":usercode})
 
         if arming_type.lower() == "away" and instant:
-            armString.update({"delay":0})
+            armString.update({"delay": 0})
+
+        if arming_type.lower() == "away" and not instant and int(delay)>0:
+            armString.update({"delay": delay})
 
         try:
             self.app.log("armString: %s", armString, level="INFO")

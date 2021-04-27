@@ -79,13 +79,13 @@ class qolsys:
         self.__listening__ = True
         self.create_socket(self._hostname, self._port, self._token, self._listener_callback, self._timeout)
 
-    def close_socket(self):
+    def close_socket(self, timeout=1):
         self.app.log("Detatching from wrapped socket", level="WARNING")
         self.__listening__ = False
         self._wrappedSocket.detach()
         self.app.log("Closing socket", level="WARNING")
         self._sock.close()
-        time.sleep(1)
+        time.sleep(timeout)
 
     def send_to_socket(self, message: json):
 
@@ -126,6 +126,10 @@ class qolsys:
             self.app.log("socket timeout", level="WARNING")
         except NoDataError:
             self._reset_socket()
+            raise NoDataError
+        except: TimeoutError:
+            self.app.log("qolsys socket TimeoutError: %s", sys.exc_info(), level="ERROR")
+            self._reset_socket
             raise NoDataError
         except:
             self.app.log("listen failed/stopped: %s", sys.exc_info(), level="ERROR")
