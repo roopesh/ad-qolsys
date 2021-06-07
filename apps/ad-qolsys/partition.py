@@ -143,14 +143,14 @@ class partition:
         return me
     
     def __repr__(self):
-        me = {
-            "id": self.p_id,
-            "name": self.name,
-            "status": self.status,
-            "entity_id": self.entity_id,
-            "alarm_panel_config_topic": self.alarm_panel_config_topic,
-            "alarm_panel_state_topic": self.alarm_panel_state_topic,
-            "code": self.code,
-            "zones": self.zones
-        }
+        me = f'{{' \
+            f'"id": self.p_id,' \
+            f'"name": self.name,' \
+            f'"status": self.status,' \
+            f'"entity_id": self.entity_id,' \
+            f'"alarm_panel_config_topic": self.alarm_panel_config_topic,' \
+            f'"alarm_panel_state_topic": self.alarm_panel_state_topic,' \
+            f'"code": self.code,' \
+            f'"zones": self.zones' \
+        f'}}'
         return me
