@@ -18,6 +18,8 @@ class partition:
         self.__c_armed_home__ = "armed_home"
         self.__c_armed_away__ = "armed_away"
         self.__c_arming__ = "arming"
+        self.__c_pending__ = "pending"
+        self.__c_triggered__ = "triggered"
         self.__c_command_topic__ = "command_topic"
         self.__c_will_topic__ = "will_topic"
         self.__c_will_payload__ = "will_payload"
@@ -109,7 +111,8 @@ class partition:
         __c_ENTRY_DELAY__ = "ENTRY_DELAY"
         __c_ARM_AWAY__ = "ARM_AWAY"
         __c_ARM_AWAY_EXIT_DELAY__ = "ARM-AWAY-EXIT-DELAY"
-        valid_values = {__c_ARM_STAY__, __c_ARM_AWAY__, __c_ARM_DELAY__, __c_DISARM__, __c_ENTRY_DELAY__, __c_ARM_AWAY_EXIT_DELAY__}
+        __c_ALARM__ = "ALARM"
+        valid_values = {__c_ARM_STAY__, __c_ARM_AWAY__, __c_ARM_DELAY__, __c_DISARM__, __c_ENTRY_DELAY__, __c_ARM_AWAY_EXIT_DELAY__, __c_ALARM__}
 
         if not status in valid_values:
             self.__status = "unavailable"
@@ -118,8 +121,12 @@ class partition:
             self.__status = self.__c_armed_home__
         elif status in {__c_ARM_DELAY__, __c_ARM_AWAY_EXIT_DELAY__}: # Maps values to arming status
             self.__status = self.__c_arming__
-        elif status in {__c_ENTRY_DELAY__, __c_ARM_AWAY__}: # Maps panel status values to armed_away
+        elif status in {__c_ARM_AWAY__}: # Maps panel status values to armed_away
             self.__status = self.__c_armed_away__
+        elif status in {__c_ENTRY_DELAY__}: # Maps panel status values to triggered
+            self.__status = self.__c_pending__
+        elif status in {__c_ALARM__}:
+            self.__status = self.__c_triggered__
         elif status in {__c_DISARM__}: # Maps panel status values to disarmed
             self.__status = self.__c_disarmed__
         else:

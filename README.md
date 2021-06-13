@@ -12,23 +12,25 @@ Utilizes the MQTT plugin's `will_topic` to detect if AppDaemon is offline.  In o
 Arguments in apps.yaml:
 
 ```yaml
-# mqtt_namespace: (optional) namespace for mqtt defined in appdaemon.yaml; defaults to ""
-# qolsys_host: (Required) IP address or hostname for the qolsys panel
-# qolsys_port: (Optional) Port on the qolsys panel to connect to; will default to 12345
-# qolsys_token: (Required) Token from the qolsys panel
-# request_topic: (Optional) The topic to listen to send commands to the qolsys panel; defaults to qolsys/requests
-# qolsys_timeout: (Optional) The timeout (in seconds) to wait for any activity to/from the qolsys panel before disconnecting; defaults to 86400
-# qolsys_info_topic: (Optional) The topic to publish qolsys INFO events to; defaults to qolsys/info
-# qolsys_zone_event_topic: (Optional) The topic to publish ZONE_EVENT events to; defaults to qolsys/zone_event
-# qolsys_alarming_event_topic: (Optional) The topic to publish ARMING events to; defaults to qolsys/arming
-# qolsys_disarming_event_topic: (Optional) The topic to publish DISARMING events to; defaults to qolsys/disarming
-# qolsys_disarm_code: (Required - if you want to disarm the alarm)
-# qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming; defaults to False
-# qolsys_confirm_arm_code: True/False (Optional) Require the code for arming; defaults to False
-# qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
-# homeassistant_mqtt_discovery_topic: homeassistant/ (Optional) The topic Home Assistant is using for MQTT Discovery (homeassistant/ is the default in HA and here)
-# mqtt_state_topic: mqtt-states (Optional) The topic to publish state updates to for the alarm_control_panel and binary_sensor (default: mqtt-states)
-# mqtt_availability_topic: mqtt-availability (Optional) The topic to publish availability events to for the alarm_control_panel and binary_sensor (default: mqtt-availability)
+mqtt_namespace: (optional) namespace for mqtt defined in appdaemon.yaml; defaults to ""
+qolsys_host: (Required) IP address or hostname for the qolsys panel
+qolsys_port: (Optional) Port on the qolsys panel to connect to; will default to 12345
+qolsys_token: (Required) Token from the qolsys panel
+request_topic: (Optional) The topic to listen to send commands to the qolsys panel; defaults to qolsys/requests
+qolsys_timeout: (Optional) The timeout (in seconds) to wait for any activity to/from the qolsys panel before disconnecting; defaults to 86400
+qolsys_info_topic: (Optional) The topic to publish qolsys INFO events to; defaults to qolsys/info
+qolsys_zone_event_topic: (Optional) The topic to publish ZONE_EVENT events to; defaults to qolsys/zone_event
+qolsys_alarming_event_topic: (Optional) The topic to publish ARMING events to; defaults to qolsys/arming
+qolsys_disarming_event_topic: (Optional) The topic to publish DISARMING events to; defaults to qolsys/disarming
+qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming; defaults to False
+qolsys_confirm_arm_code: True/False (Optional) Require the code for arming; defaults to False
+qolsys_disarm_code: (Required - if you want to disarm the alarm)
+qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
+homeassistant_mqtt_discovery_topic: homeassistant/ (Optional) The topic Home Assistant is using for MQTT Discovery (homeassistant/ is the default in HA and here)
+mqtt_state_topic: mqtt-states (Optional) The topic to publish state updates to for the alarm_control_panel and binary_sensor (default: mqtt-states)
+mqtt_availability_topic: mqtt-availability (Optional) The topic to publish availability events to for the alarm_control_panel and binary_sensor (default: mqtt-availability)
+qolsys_alarm_triggered_topic: (Optional) The topic to publish triggered events to; defaults to qolsys/alarm/triggered
+qolsys_alarm_pending_topic:  (Optional) The topic to publish pending events to; defaults to qolsys/alarm/pending
 ```
 
 You’ll need you appdaemon's apps.yaml to include an app with this module and class:
@@ -65,6 +67,7 @@ appdaemon:
   plugins:
     HASS:
       type: hass
+      namespace: default
     # I added on the MQTT plugin
     MQTT:
       type: mqtt

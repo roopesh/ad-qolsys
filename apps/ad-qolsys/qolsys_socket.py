@@ -72,10 +72,10 @@ class qolsys:
         self._listening_thread.start()
         self.app.log("started listener thread", level="INFO")
 
-    def _reset_socket(self):
-        self.close_socket()
+    def _reset_socket(self, timeout=1):
+        self.close_socket(timeout=2)
         #self._listening_thread = threading.Thread(target=self.listen, args=([self._listener_callback]))
-        self.app.log("Creating socket", level="INFO")
+        self.app.log("Recreating socket", level="INFO")
         self.__listening__ = True
         self.create_socket(self._hostname, self._port, self._token, self._listener_callback, self._timeout)
 
@@ -126,11 +126,11 @@ class qolsys:
             self.app.log("socket timeout", level="WARNING")
         except NoDataError:
             self._reset_socket()
-            raise NoDataError
+            # raise NoDataError
         except TimeoutError:
             self.app.log("qolsys socket TimeoutError: %s", sys.exc_info(), level="ERROR")
             self._reset_socket
-            raise NoDataError
+            # raise NoDataError
         except:
             self.app.log("listen failed/stopped: %s", sys.exc_info(), level="ERROR")
 

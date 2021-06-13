@@ -27,6 +27,11 @@ import sys
 # qolsys_disarm_code: (Required - if you want to disarm the alarm)
 # qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
 
+# Developer documentation
+# This is basically how shit flows:
+# Get an event from the qolsys panel (qolsys_client.py) --> QolsysClient.qolsys_data_received.
+# The event type and sub event (zone_event_type, arming_type, alarm_type) determine which mqtt queue to publish to.
+# You need a listener for that topic in QolsysClient.initialize 
 class QolsysClient(mqtt.Mqtt):
     def get_arg(self, name: str, arr: list, default=None):
 
@@ -83,6 +88,8 @@ class QolsysClient(mqtt.Mqtt):
         self.__c_mqtt_will_payload__ = "will_payload"
         self.__c_mqtt_birth_topic__ = "birth_topic"
         self.__c_mqtt_birth_payload__ = "birth_payload"
+        self.__c_mqtt_alarm_triggered_topic__ = "qolsys_alarm_triggered_topic"
+        self.__c_mqtt_alarm_pending_topic__ = "qolsys_alarm_pending_topic"
 
         # populate some variables we'll need to use throughout our app
         self.mqtt_namespace = self.get_arg(name=self.__c_mqtt_namespace__, arr=self.args, default="")
@@ -110,7 +117,8 @@ class QolsysClient(mqtt.Mqtt):
         self.mqtt_will_payload = self.get_arg(name=self.__c_mqtt_will_payload__, arr=self.mqtt_plugin_config)
         self.mqtt_birth_topic = self.get_arg(name=self.__c_mqtt_birth_topic__, arr=self.mqtt_plugin_config)
         self.mqtt_birth_payload = self.get_arg(name=self.__c_mqtt_birth_payload__, arr=self.mqtt_plugin_config)
-        
+        self.qolsys_alarm_triggered_topic = self.args[self.__c_mqtt_alarm_triggered_topic__] if self.__c_mqtt_alarm_triggered_topic__ in self.args else "qolsys/alarm/triggered"
+        self.qolsys_alarm_pending_topic = self.args[self.__c_mqtt_alarm_pending_topic__] if self.__c_mqtt_alarm_pending_topic__ in self.args else "qolsys/alarm/pending"
         
 
         self.log("qolsys_host: %s, qolsys_port: %s, qolsys_token: %s, qolsys_timeout: %s, request_topic: %s", self.qolsys_host, self.qolsys_port, self.qolsys_token, self.qolsys_timeout, self.request_topic, level="DEBUG")
@@ -138,6 +146,13 @@ class QolsysClient(mqtt.Mqtt):
 
         self.log("listener for arming topic: %s", self.qolsys_arming_event_topic, level="INFO")
         mqtt_sub.listen(mqtt_sub.mqtt_arming_event_received, self.qolsys_arming_event_topic)
+
+        # Pending events come as ARMING / ENTRY_DELAY events... no need for a separate listener
+        # self.log("listner for pending topic: %s", self.qolsys_pending_topic, level="INFO")
+        # mqtt_sub.listen(mqtt_sub.mqtt_alarm_pending_event_received, self.qolsys_alarm_pending_topic)
+
+        self.log("listner for triggered (ALARM) topic: %s", self.qolsys_alarm_triggered_topic, level="INFO")
+        mqtt_sub.listen(mqtt_sub.mqtt_alarm_triggered_event_received, self.qolsys_alarm_triggered_topic)
 
 
         # Populate the zones and partitions with an INFO call
@@ -188,7 +203,7 @@ class QolsysClient(mqtt.Mqtt):
         if event_type == "INFO":
             topic = self.qolsys_info_topic
 
-        if event_type == "ZONE_EVENT":
+        elif event_type == "ZONE_EVENT":
             zone_event_type = jdata["zone_event_type"]
             # Two types of zone events: ZONE_UPDATE, ZONE_ACTIVE
             # zone_event_type is unused for now
@@ -196,10 +211,17 @@ class QolsysClient(mqtt.Mqtt):
             # if zone_event_type == "ZONE_UDPATE":
             #     topic = self.qolsys_zone_update_topic
 
-        if event_type == "ARMING":
+        elif event_type == "ARMING":
             arming_type = jdata["arming_type"]
             # Three types of arming: ARM_STAY, EXIT_DELAY, DISARM
             topic = self.qolsys_arming_event_topic
+
+        elif event_type == "ALARM":
+            # The alarm is actually triggered
+            topic = self.qolsys_alarm_triggered_topic
+
+        else:
+            topic = "qolsys/unknown_events"
 
         self.log("publishing %s event to: %s", event_type, topic, level="INFO")
         self.log("data being published: %s", data, level="DEBUG")

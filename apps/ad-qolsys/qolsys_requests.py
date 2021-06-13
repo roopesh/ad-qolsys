@@ -52,6 +52,22 @@ class MQTTSubscriber:
         self.app.log("Publishing to: %s, Payload: %s", this_partition.alarm_panel_state_topic, this_partition.status, level="INFO")
         self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.alarm_panel_state_topic, payload=this_partition.status)
 
+    def mqtt_alarm_triggered_event_received(self, event_name, data, kwargs):
+        self.app.log("Got ALARM event: %s", data, level="INFO")
+        self.app.log("event_name: %s", event_name, level="INFO")
+        self.app.log("data: %s", data, level="INFO")
+        self.app.log("kwargs: %s", kwargs, level="INFO")
+        payload_json = self.__get_mqtt_payload_json__(data)
+        partition_id = payload_json["partition_id"]
+        alarm_type = payload_json["alarm_type"]
+        this_partition = self.app.partitions[partition_id]
+        this_partition.status = payload_json["event"] # This should be "ALARM"
+        self.app.update_zone(partition_id, this_partition)
+        self.app.log("Partitions: %s", self.app.partitions, level="INFO")
+        self.app.log("Publishing to: %s, Payload: %s", this_partition.alarm_panel_state_topic, this_partition.status, level="INFO")
+        self.app.call_service("mqtt/publish", namespace=self.app.mqtt_namespace, topic=this_partition.alarm_panel_state_topic, payload=this_partition.status)
+
+
     def mqtt_zone_event_event_received(self, event_name, data, kwargs):
         self.app.log("Got zone event: %s", data, level="DEBUG")
         self.mqtt_zone_update_event_received(event_name, data, kwargs)
@@ -106,6 +122,7 @@ class MQTTSubscriber:
                 friendly_name = zone["name"]
                 state = zone["status"]
                 zone_type = zone["type"]
+                zone_unique_id = zone["id"]
 
                 # Add this zone to this partition
                 this_partition.add_zone(zoneid)
@@ -123,7 +140,8 @@ class MQTTSubscriber:
                         birth_payload = self.app.mqtt_birth_payload,
                         homeassistant_mqtt_discovery_topic = homeassistant_mqtt_discovery_topic,
                         mqtt_state_topic = self.app.mqtt_state_topic,
-                        mqtt_availability_topic = self.app.mqtt_availability_topic
+                        mqtt_availability_topic = self.app.mqtt_availability_topic,
+                        unique_id = zone_unique_id
                     )
                     #self.app.zones[zoneid] = this_zone
                     
