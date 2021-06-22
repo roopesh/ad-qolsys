@@ -26,12 +26,18 @@ import sys
 # qolsys_confirm_arm_code: True/False (Optional) Require the code for arming
 # qolsys_disarm_code: (Required - if you want to disarm the alarm)
 # qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
+# homeassistant_mqtt_discovery_topic: homeassistant/ (Optional) The topic Home Assistant is using for MQTT Discovery (homeassistant/ is the default in HA and here)
+# mqtt_state_topic: mqtt-states (Optional) The topic to publish state updates to for the alarm_control_panel and binary_sensor (default: mqtt-states)
+# mqtt_availability_topic: mqtt-availability (Optional) The topic to publish availability events to for the alarm_control_panel and binary_sensor (default: mqtt-availability)
+# qolsys_alarm_triggered_topic: (Optional) The topic to publish triggered events to; defaults to qolsys/alarm/triggered
+# qolsys_alarm_pending_topic:  (Optional) The topic to publish pending events to; defaults to qolsys/alarm/pending
 
 # Developer documentation
 # This is basically how shit flows:
 # Get an event from the qolsys panel (qolsys_client.py) --> QolsysClient.qolsys_data_received.
 # The event type and sub event (zone_event_type, arming_type, alarm_type) determine which mqtt queue to publish to.
-# You need a listener for that topic in QolsysClient.initialize 
+# That data reciever then publishes to the relevant topic, as defined in the app arugments or default topics.
+
 class QolsysClient(mqtt.Mqtt):
     def get_arg(self, name: str, arr: list, default=None):
 

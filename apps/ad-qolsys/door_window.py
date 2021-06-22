@@ -87,16 +87,16 @@ class door_window:
     
     def __repr__(self):
         me = f'{{' \
-            f'"zoneid": self.zoneid,' \
-            f'"entity_id": self.entity_id,' \
-            f'"friendly_name": self.friendly_name,' \
-            f'"state": self.state,' \
-            f'"partition_id": self.partition_id,' \
-            f'"device_class": self.device_class,' \
-            f'"payload_on": self.payload_on,' \
-            f'"payload_off": self.payload_off,' \
-            f'"config_topic": self.config_topic,' \
-            f'"state_topic": self.state_topic,' \
-            f'"availability": self.availability_list' \
+            f'"zoneid": {self.zoneid},' \
+            f'"entity_id": {self.entity_id},' \
+            f'"friendly_name": {self.friendly_name},' \
+            f'"state": {self.state},' \
+            f'"partition_id": {self.partition_id},' \
+            f'"device_class": {self.device_class}' \
+            #f'"payload_on": {self.payload_on},' \
+            #f'"payload_off": {self.payload_off},' \
+            #f'"config_topic": {self.config_topic},' \
+            #f'"state_topic": {self.state_topic},' \
+            #f'"availability": {self.availability_list}' \
         f'}}'
         return me

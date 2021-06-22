@@ -151,13 +151,13 @@ class partition:
     
     def __repr__(self):
         me = f'{{' \
-            f'"id": self.p_id,' \
-            f'"name": self.name,' \
-            f'"status": self.status,' \
-            f'"entity_id": self.entity_id,' \
-            f'"alarm_panel_config_topic": self.alarm_panel_config_topic,' \
-            f'"alarm_panel_state_topic": self.alarm_panel_state_topic,' \
-            f'"code": self.code,' \
-            f'"zones": self.zones' \
+            f'"id": {self.p_id},' \
+            f'"name": {self.name},' \
+            f'"status": {self.status},' \
+            f'"entity_id": {self.entity_id},' \
+            f'"code": {self.code},' \
+            f'"zones": {self.zones}' \
+            # f'"alarm_panel_config_topic": {self.alarm_panel_config_topic},' \
+            # f'"alarm_panel_state_topic": {self.alarm_panel_state_topic},' \
         f'}}'
         return me

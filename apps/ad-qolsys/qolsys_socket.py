@@ -123,16 +123,19 @@ class qolsys:
                     raise NoDataError
             self.app.log("stopped listening on qolsys socket", level="INFO")
         except socket.timeout:
-            self.app.log("socket timeout", level="WARNING")
+            self.app.log("socket timeout, restarting socket", level="WARNING")
+            self._reset_socket()
         except NoDataError:
+            self.app.log("No data received from socket, restarting socket", level="INFO"
             self._reset_socket()
             # raise NoDataError
         except TimeoutError:
             self.app.log("qolsys socket TimeoutError: %s", sys.exc_info(), level="ERROR")
-            self._reset_socket
+            self._reset_socket()
             # raise NoDataError
         except:
             self.app.log("listen failed/stopped: %s", sys.exc_info(), level="ERROR")
+            self._reset_socket()
 
 
 
