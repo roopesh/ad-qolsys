@@ -126,7 +126,7 @@ class qolsys:
             self.app.log("socket timeout, restarting socket", level="WARNING")
             self._reset_socket()
         except NoDataError:
-            self.app.log("No data received from socket, restarting socket", level="INFO"
+            self.app.log("No data received from socket, restarting socket", level="INFO")
             self._reset_socket()
             # raise NoDataError
         except TimeoutError:
