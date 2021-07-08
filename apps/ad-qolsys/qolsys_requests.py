@@ -164,7 +164,8 @@ class MQTTSubscriber:
             "SmokeDetector": "smoke",
             "GlassBreak": "safety",
             "Motion": "motion",
-            "Water":"moisture"
+            "Water":"moisture",
+			"CODetector": "gas"
             }
         if device_class in mapping:
             return mapping[device_class]
