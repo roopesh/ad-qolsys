@@ -48,7 +48,7 @@ class partition:
         self.alarm_panel_config_topic = self.homeassistant_mqtt_discovery_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/config"
         self.alarm_panel_state_topic = self.mqtt_state_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/state"
         self.availability_topic = self.mqtt_availability_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/availability"
-        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
+        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" or action == \"ARM_NIGHT\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" or action == \"ARM_NIGHT\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
         
     @property
     def availability_list(self):
@@ -106,6 +106,7 @@ class partition:
     @status.setter
     def status(self, status:str):
         __c_ARM_STAY__ = "ARM_STAY"
+        __c_ARM_NIGHT__ = "ARM_NIGHT"
         __c_ARM_DELAY__ = "EXIT_DELAY"
         __c_DISARM__ = "DISARM"
         __c_ENTRY_DELAY__ = "ENTRY_DELAY"
@@ -151,13 +152,13 @@ class partition:
     
     def __repr__(self):
         me = f'{{' \
-            f'"id": self.p_id,' \
-            f'"name": self.name,' \
-            f'"status": self.status,' \
-            f'"entity_id": self.entity_id,' \
-            f'"alarm_panel_config_topic": self.alarm_panel_config_topic,' \
-            f'"alarm_panel_state_topic": self.alarm_panel_state_topic,' \
-            f'"code": self.code,' \
-            f'"zones": self.zones' \
+            f'"id": {self.p_id},' \
+            f'"name": {self.name},' \
+            f'"status": {self.status},' \
+            f'"entity_id": {self.entity_id},' \
+            f'"code": {self.code},' \
+            f'"zones": {self.zones}' \
+            # f'"alarm_panel_config_topic": {self.alarm_panel_config_topic},' \
+            # f'"alarm_panel_state_topic": {self.alarm_panel_state_topic},' \
         f'}}'
         return me
