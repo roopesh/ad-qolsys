@@ -103,3 +103,5 @@ Known issues:
 - When the app reloads, sometimes it doesn’t reconnect to the socket and it just hangs the entire app. The only way I’ve been able to recover is to restart AppDaemon. If anyone has a way to detect and fix this, let me know or issue a pull request.
 
 ## I hope this works for everyone! Hit me up with feedback
+
+If you like this, feel free to buymeacoffee.com/crazeeeyez
