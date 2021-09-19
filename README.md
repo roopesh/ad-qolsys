@@ -104,4 +104,5 @@ Known issues:
 
 ## I hope this works for everyone! Hit me up with feedback
 
-If you like this, feel free to <a href="https://www.buymeacoffee.com/crazeeeyez" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+If you like this
+<a href="https://www.buymeacoffee.com/crazeeeyez" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
