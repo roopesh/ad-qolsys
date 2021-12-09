@@ -99,13 +99,22 @@ class qolsys:
         self.app.log("starting listen", level="INFO")
         data = ""
         #err = ""
+        buffer = b''
         while not (self._wrappedSocket._connected):
             self.app.log("not connected yet", level="WARNING")
             self.app.log(self._wrappedSocket._connected, level="INFO")
             time.sleep(1)
         try:
             while self._wrappedSocket._connected and self.__listening__:
-                data = self._wrappedSocket.recv(8192).decode()
+                # What we get from the socket is unpredictable so a message may be truncated. We use '\n' as a delimeter
+                while b'\n' not in buffer:
+                    self.app.log("Buffer: %s", buffer, level="DEBUG")
+                    received = self._wrappedSocket.recv(4096)
+                    self.app.log("Received: %s", received, level="DEBUG")
+                    buffer += received
+                line,sep,buffer = buffer.partition(b'\n')
+                self.app.log("Line: %s", line, level="DEBUG")
+                data = line.decode()
                 if len(data) > 0:
                     self.app.log("data received from qolsys panel: %s len(data): %s", data, len(data), level="DEBUG")
                     if is_json(data):
@@ -132,9 +141,8 @@ class qolsys:
             self._reset_socket
             # raise NoDataError
         except:
-            self.app.log("listen failed/stopped: %s", sys.exc_info(), level="ERROR")
-
-
+            # Extract the stack to make the log entry more meaningful
+            self.app.log("listen failed/stopped: %s", sys.exc_info()[2].extract_stack(), level="ERROR")
 
 def is_json(myjson):
     try:
