@@ -170,7 +170,7 @@ class MQTTSubscriber:
         if device_class in mapping:
             return mapping[device_class]
         else:
-            return ""
+            return "safety"
     def __get_mqtt_payload_json__(self, data):
         self.app.log("data: %s", data, level="DEBUG")
         payload_json = {}
@@ -270,8 +270,6 @@ class MQTTSubscriber:
                             "version":      0,
                             "nonce":        "qolsys",
                             "source":       "C4",
-                            "version_key":  1,
-                            "source_key":   "C4",
                             "token":        token
                         }
 
