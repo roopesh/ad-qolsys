@@ -24,7 +24,7 @@ qolsys_alarming_event_topic: (Optional) The topic to publish ARMING events to; d
 qolsys_disarming_event_topic: (Optional) The topic to publish DISARMING events to; defaults to qolsys/disarming
 qolsys_confirm_disarm_code: True/False (Optional) Require the code for disarming; defaults to False
 qolsys_confirm_arm_code: True/False (Optional) Require the code for arming; defaults to False
-qolsys_disarm_code: (Required to disarm the alarm; also required to arm "Secure Arm" is enabled in Dealer Settings > Security & Arming, otherwise IQ panel may crash; wrap codes with leading zeros in quotes!)
+qolsys_disarm_code: (Required to disarm the alarm; also required to arm if "Secure Arm" is enabled in Dealer Settings > Security & Arming, otherwise IQ panel may crash; wrap codes with leading zeros in quotes!)
 qolsys_arm_away_always_instant: True/False (Optional) Set to true if all Arm Away commands should be instant; defaults to False
 homeassistant_mqtt_discovery_topic: homeassistant/ (Optional) The topic Home Assistant is using for MQTT Discovery (homeassistant/ is the default in HA and here)
 mqtt_state_topic: mqtt-states (Optional) The topic to publish state updates to for the alarm_control_panel and binary_sensor (default: mqtt-states)
