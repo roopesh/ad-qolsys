@@ -1,7 +1,7 @@
 import re
 
 class partition:
-    def __init__(self, p_id: int, name: str, status: str, code: int, confirm_code_arm: bool, confirm_code_disarm: bool, token: str, **kwargs):
+    def __init__(self, p_id: int, name: str, status: str, code: str, confirm_code_arm: bool, confirm_code_disarm: bool, token: str, **kwargs):
         """ Arguments:
         id: int
         name: str
@@ -89,11 +89,12 @@ class partition:
         return self.__code
 
     @code.setter
-    def code(self, code: int):
-        self.__code = int()
+    def code(self, code: str):
+        self.__code = str()
         try:
             if int(code) and len(str(code))>=4:
-                self.__code = int(code)
+                # use a string to store the code to accomodate leading zeros
+                self.__code = str(code)
             else:
                 raise ValueError("Not a valid code")
         except:
