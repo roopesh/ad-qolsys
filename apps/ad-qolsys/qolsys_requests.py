@@ -272,12 +272,9 @@ class MQTTSubscriber:
                             "source":       "C4",
                             "version_key":  1,
                             "source_key":   "C4",
-                            "token":        token
+                            "token":        token,
+                            "usercode":     usercode
                         }
-
-        #Disarm requires a usercode
-        if arming_type.lower() == "disarm":
-            armString.update({"usercode":usercode})
 
         if arming_type.lower() == "away" and instant:
             armString.update({"delay": 0})

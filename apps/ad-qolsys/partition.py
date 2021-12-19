@@ -48,7 +48,7 @@ class partition:
         self.alarm_panel_config_topic = self.homeassistant_mqtt_discovery_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/config"
         self.alarm_panel_state_topic = self.mqtt_state_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/state"
         self.availability_topic = self.mqtt_availability_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/availability"
-        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" or action == \"ARM_NIGHT\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" or action == \"ARM_NIGHT\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
+        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" or action == \"ARM_NIGHT\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" or action == \"ARM_NIGHT\" %}stay{% else %}away{% endif %}"{% else %}{{action}}"{% endif %}, "usercode":"' + str(self.code) + '", "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
         
     @property
     def availability_list(self):
