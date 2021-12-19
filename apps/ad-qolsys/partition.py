@@ -1,7 +1,7 @@
 import re
 
 class partition:
-    def __init__(self, p_id: int, name: str, status: str, code: int, confirm_code_arm: bool, confirm_code_disarm: bool, token: str, **kwargs):
+    def __init__(self, p_id: int, name: str, status: str, code: str, confirm_code_arm: bool, confirm_code_disarm: bool, token: str, **kwargs):
         """ Arguments:
         id: int
         name: str
@@ -48,7 +48,7 @@ class partition:
         self.alarm_panel_config_topic = self.homeassistant_mqtt_discovery_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/config"
         self.alarm_panel_state_topic = self.mqtt_state_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/state"
         self.availability_topic = self.mqtt_availability_topic + "alarm_control_panel/qolsys/" + self.entity_id + "/availability"
-        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" or action == \"ARM_NIGHT\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" or action == \"ARM_NIGHT\" %}stay{% else %}away{% endif %}"{% else %}{{action}}", "usercode":"' + str(self.code) + '"{% endif %}, "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
+        self.command_template = '{"event":"{% if action == \"ARM_HOME\" or action == \"ARM_AWAY\" or action == \"ARM_NIGHT\" %}ARM","arm_type":"{% if action == \"ARM_HOME\" or action == \"ARM_NIGHT\" %}stay{% else %}away{% endif %}"{% else %}{{action}}"{% endif %}, "usercode":"' + str(self.code) + '", "token":"' + self.token + '", "partition_id":"' + str(self.p_id) + '"}'
         
     @property
     def availability_list(self):
@@ -89,11 +89,12 @@ class partition:
         return self.__code
 
     @code.setter
-    def code(self, code: int):
-        self.__code = int()
+    def code(self, code: str):
+        self.__code = str()
         try:
             if int(code) and len(str(code))>=4:
-                self.__code = int(code)
+                # use a string to store the code to accomodate leading zeros
+                self.__code = str(code)
             else:
                 raise ValueError("Not a valid code")
         except:
