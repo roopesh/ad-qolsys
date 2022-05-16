@@ -1,5 +1,7 @@
+## I loved developing this for the community.  It had always been my hope that my plugin would no longer be required either through official support, community support, or through a replacement. @XaF https://github.com/XaF/qolsysgw has done the latter and built a better solution for the Qolsys panels.  I highly recommend you use qolsysgw going forward.  It is more stable and reliable than ad-qolsys.  Thank you for your support!
 
-# ad-qolsys
+
+## ad-qolsys
 
 AppDaemon app for Qolsys IQ Panel 2 _for Home Assistant_.  Only tested using the HA add-on AppDaemon.  Inspired by <https://community.home-assistant.io/t/qolsys-iq-panel-2-and-3rd-party-integration>
 
